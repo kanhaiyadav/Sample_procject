@@ -5,10 +5,12 @@ import storage from "redux-persist/lib/storage";
 
 import todoSlice from "./Slice/TodoSlice/TodoSlice";
 import userSlice from "./Slice/userSlice/userSlice";
+import formSlice from "./Slice/FormSlice/formSlice";
 
 const appReducer = combineReducers({
     todo: todoSlice,
     user: userSlice,
+    form: formSlice,
 });
 
 const rootReducer = (state, action) => {

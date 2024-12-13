@@ -40,6 +40,33 @@ export const createTodo = createAsyncThunk(
     }
 );
 
+export const updateTodo = createAsyncThunk(
+    "todo/updateTodo",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await fetch(
+                `http://localhost:3000/api/todo/update`,
+                {
+                    method: "PATCH",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                    },
+                }
+            );
+            const result = await response.json();
+            if (response.ok) {
+                console.log(result);
+                return result;
+            } else {
+                rejectWithValue(result);
+            }
+        } catch (error) {
+            rejectWithValue(error);
+        }
+    }
+);
+
 const initialState = {
     todos: [],
 };
@@ -56,6 +83,11 @@ const todoSlice = createSlice({
                 (todo) => todo.id !== action.payload
             );
         },
+        updateLocalTodo: (state, action) => {
+            state.todos = state.todos.map((todo) =>
+                todo._id === action.payload._id ? action.payload : todo
+            );
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(fetchTodos.fulfilled, (state, action) => {
@@ -68,5 +100,5 @@ const todoSlice = createSlice({
     },
 });
 
-export const { addTodo, removeTodo } = todoSlice.actions;
+export const { addTodo, removeTodo, updateLocalTodo } = todoSlice.actions;
 export default todoSlice.reducer;

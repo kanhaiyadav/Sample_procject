@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Button from "./Button";
 import { IoClose } from "react-icons/io5";
@@ -7,40 +7,64 @@ import { addTodo } from "../redux/Slice/TodoSlice/TodoSlice";
 import { createTodo } from "../redux/Slice/TodoSlice/TodoSlice";
 import { useSelector } from "react-redux";
 import { selectUserDetails } from "../redux/Slice/userSlice/userSelector";
+import { updateLocalTodo } from "../redux/Slice/TodoSlice/TodoSlice";
+import { updateTodo } from "../redux/Slice/TodoSlice/TodoSlice";
+import { resetForm } from "../redux/Slice/FormSlice/formSlice";
+import { closeForm } from "../redux/Slice/FormSlice/formSlice";
+import { selectFormData } from "../redux/Slice/FormSlice/form.selector";
+import { selectFormFocused } from "../redux/Slice/FormSlice/form.selector";
+import { selectFormType } from "../redux/Slice/FormSlice/form.selector";
+import { openForm } from "../redux/Slice/FormSlice/formSlice";
+
 
 const Form = () => {
-    const [focused, setFocused] = useState(false);
-    const [tags, setTags] = useState([]);
-    const [tag, setTag] = useState("");
-    const [task, setTask] = useState("");
-    const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-    const [time, setTime] = useState("00:00");
+    
+    
 
     const dispatch = useDispatch();
     const userDetails = useSelector(selectUserDetails);
+    const formData = useSelector(selectFormData);
+    const focused = useSelector(selectFormFocused);
+    const formtype = useSelector(selectFormType);
+
+    const [tags, setTags] = useState(formData.tags);
+    const [tag, setTag] = useState(formData.tag);
+    const [task, setTask] = useState(formData.task);
+    const [date, setDate] = useState(formData.date);
+    const [time, setTime] = useState(formData.time);
+
+    useEffect(() => {
+        setTags(formData.tags);
+        setTag(formData.tag);
+        setTask(formData.task);
+        setDate(formData.date);
+        setTime(formData.time);
+    }, [formData]);
 
     const reset = () => {
-        setTask("");
-        setDate(new Date().toISOString().split("T")[0]);
-        setTime("00:00");
-        setTags([]);
+        dispatch(resetForm());
     };
 
+    const open = () => {
+        dispatch(openForm());
+    }
+
+    const close = () => {
+        dispatch(closeForm());
+    }
+
     const handleSubmit = (e) => {
-        e.preventDefault;
-        const todo = {
-            _id: "temp",
-            task: task,
-            date: date,
-            time: time,
-            tags: tags,
-            user: userDetails._id,
-        };
-        console.log(todo);
-        dispatch(addTodo(todo));
-        dispatch(createTodo(todo));
-        reset();
-        setFocused(false);
+
+        e.preventDefault();
+        console.log(formData);
+        if (formtype === "add") {
+            dispatch(addTodo({_id: 'temp', task, date, time, tags, user: userDetails._id}));
+            dispatch(createTodo({_id: 'temp', task, date, time, tags, user: userDetails._id }));
+        } else {
+            dispatch(updateLocalTodo({...formData, task, date, time, tags, user: userDetails._id }));
+            dispatch(updateTodo({...formData, task, date, time, tags, user: userDetails._id }));
+        }
+        dispatch(closeForm());
     };
 
     return (
@@ -59,7 +83,7 @@ const Form = () => {
                     placeholder="Enter your todo"
                     className=" outline-none peer w-full h-full bg-transparent flex-1"
                     required
-                    onFocus={() => setFocused(true)}
+                    onFocus={()=>{open()}}
                     onChange={(e) => setTask(e.target.value)}
                     value={task}
                 />
@@ -114,10 +138,7 @@ const Form = () => {
                     <div className="flex items-center gap-4">
                         <Button onClick={handleSubmit}>Submit</Button>
                         <Button
-                            onClick={() => {
-                                reset();
-                                setFocused(false);
-                            }}
+                            onClick={close}
                         >
                             Cancel
                         </Button>
