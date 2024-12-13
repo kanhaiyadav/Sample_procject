@@ -9,7 +9,6 @@ export const fetchTodos = createAsyncThunk(
         );
         const result = await response.json();
         if (response.ok) {
-            console.log(result);
             return result;
         } else rejectWithValue(result);
         return await response.json();
@@ -40,6 +39,29 @@ export const createTodo = createAsyncThunk(
     }
 );
 
+export const deleteTodo = createAsyncThunk(
+    "todo/deleteTodo",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await fetch(
+                `http://localhost:3000/api/todo/delete?id=${data.id}&userId=${data.userId}`,
+                {
+                    method: "DELETE",
+                }
+            );
+            const result = await response.json();
+            if (response.ok) {
+                console.log(result);
+                return result;
+            } else {
+                rejectWithValue(result);
+            }
+        } catch (error) {
+            rejectWithValue(error);
+        }
+    }
+);
+
 export const updateTodo = createAsyncThunk(
     "todo/updateTodo",
     async (data, { rejectWithValue }) => {
@@ -56,7 +78,6 @@ export const updateTodo = createAsyncThunk(
             );
             const result = await response.json();
             if (response.ok) {
-                console.log(result);
                 return result;
             } else {
                 rejectWithValue(result);
@@ -88,6 +109,11 @@ const todoSlice = createSlice({
                 todo._id === action.payload._id ? action.payload : todo
             );
         },
+        deleteLocalTodo: (state, action) => {
+            state.todos = state.todos.filter(
+                (todo) => todo._id !== action.payload
+            );
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchTodos.fulfilled, (state, action) => {
@@ -100,5 +126,5 @@ const todoSlice = createSlice({
     },
 });
 
-export const { addTodo, removeTodo, updateLocalTodo } = todoSlice.actions;
+export const { addTodo, removeTodo, updateLocalTodo, deleteLocalTodo } = todoSlice.actions;
 export default todoSlice.reducer;

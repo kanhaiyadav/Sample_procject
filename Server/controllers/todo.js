@@ -5,7 +5,6 @@ export const addTodo = async (req, res) => {
     try {
         const { task, status, date, time, tags } = req.body;
         const user = await User.findById(req.body.user);
-        console.log(user, req.body.user);
         const newTodo = new Todo({
             task,
             date,
@@ -26,7 +25,6 @@ export const addTodo = async (req, res) => {
 export const fetchTodos = async (req, res) => {
     try {
         const todos = await Todo.find({ user: req.params.userId });
-        console.log(todos, req.params.userId);
         res.status(200).json(todos);
     } catch (error) {
         console.log(error);
@@ -36,27 +34,27 @@ export const fetchTodos = async (req, res) => {
 
 export const updateTodo = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { task, status, date, time, tags } = req.body;
-        if (!Todo.isValidObjectId(id))
-            return res.status(404).send("No todo with that id");
-        const updatedTodo = { task, status, date, time, tags, _id: id };
-        await Todo.findByIdAndUpdate(id, updatedTodo, { new: true });
+        const { _id, task, status, date, time, tags, user } = req.body;
+        console.log(req.body);
+        const updatedTodo = { task, status, date, time, tags, user };
+        await Todo.findByIdAndUpdate(_id, updatedTodo, { new: true });
         res.status(200).json(updatedTodo);
     } catch (error) {
+        console.log(error);
         res.status(409).json({ message: error.message });
     }
 };
 
 export const deleteTodo = async (req, res) => {
     try {
-        const { id, userId } = req.query;
-        if (!Todo.isValidObjectId(id))
-            return res.status(404).send("No todo with that id");
-        await Todo.findByIdAndRemove(id);
-        User.updateOne({ _id: userId }, { $pull: { todos: id } });
+        const {id, userId} = req.query;
+        // if (!Todo.isValidObjectId(id))
+        //     return res.status(404).send("No todo with that id");
+        await Todo.findByIdAndDelete(id);
+        await User.updateOne({ _id: userId }, { $pull: { todos: id } });
         res.status(200).json({ message: "Todo deleted successfully" });
     } catch (error) {
+        console.log(error);
         res.status(409).json({ message: error.message });
     }
 }

@@ -17,6 +17,7 @@ import { selectFormType } from "../redux/Slice/FormSlice/form.selector";
 import { openForm } from "../redux/Slice/FormSlice/formSlice";
 
 
+
 const Form = () => {
     
     
@@ -70,7 +71,7 @@ const Form = () => {
     return (
         <div className="flex flex-col w-full p-0 transition-all items-center">
             <div
-                className={`px-4 py-4 ${
+                className={`px-4 py-4 shadow-[0_5px_20px_2px_rgba(0,0,0,0.2)] ${
                     focused
                         ? "bg-white h-[120px] border-b-4 border-green-400"
                         : "bg-gray-50 h-[60px]"
@@ -83,7 +84,9 @@ const Form = () => {
                     placeholder="Enter your todo"
                     className=" outline-none peer w-full h-full bg-transparent flex-1"
                     required
-                    onFocus={()=>{open()}}
+                    onFocus={() => {
+                        open();
+                    }}
                     onChange={(e) => setTask(e.target.value)}
                     value={task}
                 />
@@ -137,11 +140,7 @@ const Form = () => {
                     </form>
                     <div className="flex items-center gap-4">
                         <Button onClick={handleSubmit}>Submit</Button>
-                        <Button
-                            onClick={close}
-                        >
-                            Cancel
-                        </Button>
+                        <Button onClick={close}>Cancel</Button>
                         <Button onClick={reset}>Reset</Button>
                     </div>
                 </motion.div>
